@@ -1,34 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OrderManager.Models;
-using OrderManager.Models.DTOs;
+using OrderManager.Models.DTOs.ClientDto;
 using OrderManager.Services;
-using System.Net;
 
 namespace OrderManager.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class ClientController : ControllerBase
+    [Route("api/[controller]")]
+    public class ClientController(
+        IClientService service) : ControllerBase
+        
     {
-        private readonly IClientService _clientService;
-
-        public ClientController(IClientService clientService) => _clientService = clientService;
-
+        /// <summary>
+        /// Gets all the clients
+        /// </summary>
+        /// <returns>A list of ClientDto containing client information.</returns>
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<Client>>>> GetClients()
+        public async Task<ActionResult<ServiceResponse<List<ClientDTO>>>> GetAll()
         {
-            var response = await _clientService.GetClients();
-            if(!response.Success)
-            {
-                return BadRequest(response);
-            }
+            var response = await service.GetAllAsync();
             return Ok(response);
         }
 
-        [HttpGet("{clientId}")]
-        public async Task<ActionResult<ServiceResponse<Client>>> GetClient(Guid clientId)
+        /// <summary>
+        /// Gets information about a single client.
+        /// </summary>
+        /// <param name="id">The clientId, in GUID format</param>
+        /// <returns>The single client information.</returns>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ServiceResponse<ClientDetailsDto>>> GetById(Guid id)
         {
-            var response = await _clientService.GetClient(clientId);
+            var response = await service.GetByIdAsync(id);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -36,10 +38,15 @@ namespace OrderManager.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Creates a new client
+        /// </summary>
+        /// <param name="clientDto">The client object</param>
+        /// <returns>The newly created client information.</returns>
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<Client>>> AddClient(ClientDTO newClient)
+        public async Task<ActionResult<ServiceResponse<ClientDTO>>> Create(ClientCreateDto clientDto)
         {
-            var response = await _clientService.AddClient(newClient);
+            var response = await service.CreateAsync(clientDto);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -47,10 +54,16 @@ namespace OrderManager.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
-        public async Task<ActionResult<ServiceResponse<Client>>> UpdateClient(ClientDTO updatedClient)
+        /// <summary>
+        /// Updates a new client
+        /// </summary>
+        /// <param name="id">The client id, in GUID format to be updated.</param>
+        /// <param name="clientDto">The client dto object with the information to be edited.</param>
+        /// <returns></returns>
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ServiceResponse<ClientDTO>>> Update(Guid id, ClientUpdateDto clientDto)
         {
-            var response = await _clientService.UpdateClient(updatedClient);
+            var response = await service.UpdateAsync(id, clientDto);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -58,10 +71,15 @@ namespace OrderManager.Controllers
             return Ok(response);
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<ServiceResponse<Client>>> DeleteClient(Guid clientId)
+        /// <summary>
+        /// Deletes a client based on the client Guid. A client can only be deleted once there's no work orders marked as OPEN
+        /// </summary>
+        /// <param name="clientId">The client id in GUID format</param>
+        /// <returns>A boolean indicating if the client was deleted or not</returns>
+        [HttpDelete("{clientId}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> Delete(Guid clientId)
         {
-            var response = await _clientService.DeleteClient(clientId);
+            var response = await service.DeleteAsync(clientId);
             if (!response.Success)
             {
                 return BadRequest(response);

@@ -1,32 +1,48 @@
-﻿using OrderManager.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using OrderManager.Data;
+using OrderManager.Models;
 
 namespace OrderManager.Repository
 {
-    public class WorkOrderRepository : IWorkOrderRepository
+    public class WorkOrderRepository(OrderManagerContext context) : IWorkOrderRepository
     {
-        public Task<bool> CreateWorkOrder(WorkOrder newWorkOrder)
+        public async Task<WorkOrder> CreateWorkOrder(WorkOrder newWorkOrder)
         {
-            throw new NotImplementedException();
+            context.WorkOrders.Add(newWorkOrder);
+            await SaveChangesAsync();
+            return newWorkOrder;
         }
 
         public Task<List<WorkOrder>> GetAllWorkOrders()
         {
-            throw new NotImplementedException();
+            return context.WorkOrders.ToListAsync();
         }
 
-        public Task<WorkOrder> GetWorkOrderByClientId(Guid clientId)
+        public Task<WorkOrder?> GetWorkOrderByClientId(Guid clientId)
         {
-            throw new NotImplementedException();
+            var workOrder = context.WorkOrders
+                .FirstOrDefaultAsync(wo => wo.Id == clientId);
+            return workOrder;
         }
 
-        public Task<WorkOrder> GetWorkOrderById(Guid workOrderId)
+        public async Task<WorkOrder?> GetWorkOrderById(Guid workOrderId)
         {
-            throw new NotImplementedException();
+            var workOrder = await context.WorkOrders
+                .Include(wo => wo.Client)
+                .Include(wo => wo.Comments)
+                .FirstOrDefaultAsync(wo => wo.Id == workOrderId);
+            return workOrder;
         }
 
-        public Task<bool> UpdateWorkOrder(WorkOrder workOrder)
+        public async Task<bool> UpdateWorkOrder(WorkOrder workOrder)
         {
-            throw new NotImplementedException();
+            context.WorkOrders.Update(workOrder);
+            return await SaveChangesAsync();
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await context.SaveChangesAsync() > 0;
         }
     }
 }

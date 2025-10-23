@@ -1,103 +1,118 @@
-﻿using OrderManager.Models;
-using OrderManager.Models.DTOs;
+﻿using Mapster;
+using Microsoft.EntityFrameworkCore;
+using OrderManager.Models;
+using OrderManager.Models.DTOs.ClientDto;
 using OrderManager.Repository;
 using OrderManager.Services.Helpers;
 
 namespace OrderManager.Services
 {
-    public class ClientService : IClientService
+    public class ClientService(IClientRepository clientRepository) : IClientService
+        
     {
-        private readonly IClientRepository _clientRepository;
-
-        public ClientService(IClientRepository clientRepository)
+        public async Task<ServiceResponse<ClientDTO>> CreateAsync(ClientCreateDto newClient)
         {
-            _clientRepository = clientRepository;
+            try
+            {
+                var newClientRequest = await Client.Create(
+                    newClient.Name,
+                    newClient.Email,
+                    clientRepository.EmailExists,
+                    newClient.Phone
+                );
+                var addResult = await clientRepository.AddClient(newClientRequest);
+                return ResponseBuilderHelper.Success<ClientDTO>(new ClientDTO
+                {
+                    Name = addResult.Name,
+                    Email = addResult.Email,
+                    Phone = addResult.Phone,
+                    Id = addResult.Id
+                }, "Client added successfully.");
+            }
+            catch (ArgumentException argEx)
+            {
+                return ResponseBuilderHelper.Failure<ClientDTO>($"Validation error: {argEx.Message}");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return ResponseBuilderHelper.Failure<ClientDTO>($"Database error adding the client. Please try again.{dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                return ResponseBuilderHelper.Failure<ClientDTO>($"Error adding the client. Please try again.{ex.Message}");
+            }
         }
-        public async Task<ServiceResponse<Client>> AddClient(ClientDTO newClient)
+
+        public async Task<ServiceResponse<bool>> DeleteAsync(Guid clientId)
         {
-            var existingClient = await _clientRepository.FindByEmail(newClient.Email);
-            if (existingClient != null && existingClient.Email == newClient.Email)
-            {
-                return ResponseBuilderHelper.Failure<Client>("A client with this email already exists.");
-            }
-
-            // TODO: Refactor this to be more DDD like with methods to manipulate the Client entity itself
-            var newClientRequest = new Client
-            {
-                Name = newClient.Name,
-                Email = newClient.Email,
-                Phone = newClient.Phone,
-            };
-
-            var addResult = await _clientRepository.AddClient(newClientRequest);
-            if(!addResult)
-            {
-                return ResponseBuilderHelper.Failure<Client>("Error adding the client. Please try again.");
-            }
-            else
-            {
-                return ResponseBuilderHelper.Success<Client>(newClientRequest, "Client added successfully.");
-            }
-        }
-
-        public async Task<ServiceResponse<Client>> DeleteClient(Guid clientId)
-        {
-            var existingClient = await _clientRepository.FindById(clientId);
+            var existingClient = await clientRepository.FindById(clientId);
             if (existingClient == null)
             {
-                return ResponseBuilderHelper.Failure<Client>("Client not found!");
+                return ResponseBuilderHelper.Failure<bool>("Client not found!");
             }
-            
-            var deleteResult = await _clientRepository.DeleteClient(existingClient);
+            var canDeleteClient = existingClient.CanDeleteClient();
+            if (!canDeleteClient)
+            {
+                return ResponseBuilderHelper.Failure<bool>("Client cannot be deleted because it has associated work orders that are not closed.");
+            }
+            var deleteResult = await clientRepository.DeleteClient(existingClient);
             if(!deleteResult)
             {
-                return ResponseBuilderHelper.Failure<Client>("Error deleting the client. Please try again.");
+                return ResponseBuilderHelper.Failure<bool>("Error deleting the client. Please try again.");
             }
             else
             {
-                return ResponseBuilderHelper.Success<Client>(existingClient, "Client deleted successfully.");
+                return ResponseBuilderHelper.Success<bool>(true, "Client deleted successfully.");
             }
         }
 
-        public async Task<ServiceResponse<Client>> GetClient(Guid clientId)
+        public async Task<ServiceResponse<ClientDetailsDto>> GetByIdAsync(Guid clientId)
         {
-            // This Find By Id check could be more reusable.
-            var client = await _clientRepository.FindById(clientId);
+            var client = await clientRepository.FindById(clientId);
             if (client == null)
             {
-                return ResponseBuilderHelper.Failure<Client>("Client not found.");
+                return ResponseBuilderHelper.Failure<ClientDetailsDto>("Client not found.");
             }
-            else
-            {
-                return ResponseBuilderHelper.Success<Client>(client, "Client retrieved successfully.");
-            };
+            var clientDto = client.Adapt<ClientDetailsDto>();
+            return ResponseBuilderHelper.Success<ClientDetailsDto>(clientDto, "Client retrieved successfully.");
         }
 
-        public async Task<ServiceResponse<List<Client>>> GetClients()
+        public async Task<ServiceResponse<List<ClientDTO>>> GetAllAsync()
         {
-            var allClients = await _clientRepository.FindAll();
-            return ResponseBuilderHelper.Success<List<Client>>(allClients, "Clients retrieved successfully.");
+            var allClients = await clientRepository.FindAll();
+            var allClientsDto = allClients.Adapt<List<ClientDTO>>();
+            return ResponseBuilderHelper.Success<List<ClientDTO>>(allClientsDto, "Clients retrieved successfully.");
         }
 
-        public async Task<ServiceResponse<Client>> UpdateClient(ClientDTO updatedClient)
+        public async Task<ServiceResponse<ClientDTO>> UpdateAsync(Guid clientId, ClientUpdateDto updatedClient)
         {
-            var existingClient = await _clientRepository.FindByEmail(updatedClient.Email);
+            var existingClient = await clientRepository.FindById(clientId);
             if (existingClient == null)
             {
-                return ResponseBuilderHelper.Failure<Client>("Client not found.");
+                return ResponseBuilderHelper.Failure<ClientDTO>("Client not found.");
             }
-            // This update could be in the domain class
-            existingClient.Name = updatedClient.Name ?? existingClient.Name;
-            existingClient.Phone = updatedClient.Phone ?? existingClient.Phone;
-
-            var updateResult = await _clientRepository.UpdateClient(existingClient);
-            if(!updateResult)
+            try
             {
-                return ResponseBuilderHelper.Failure<Client>("Error updating the client. Please try again.");
+                existingClient.UpdateClient(
+                updatedClient.Name,
+                updatedClient.Phone
+            );
+                var updateResult = await clientRepository.UpdateClient(existingClient);
+                // missing check here
+                var existingClientDto = existingClient.Adapt<ClientDTO>();
+                return ResponseBuilderHelper.Success<ClientDTO>(existingClientDto, "Client updated successfully.");
             }
-            else
+            catch (ArgumentNullException argEx)
             {
-                return ResponseBuilderHelper.Success<Client>(existingClient, "Client updated successfully.");
+                return ResponseBuilderHelper.Failure<ClientDTO>($"Validation error: {argEx.Message}");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return ResponseBuilderHelper.Failure<ClientDTO>($"Database error updating the client. Please try again.{dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                return ResponseBuilderHelper.Failure<ClientDTO>($"Error updating the client. Please try again.{ex.Message}");
             }
         }
     }

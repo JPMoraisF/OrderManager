@@ -1,14 +1,14 @@
 ﻿using OrderManager.Models;
-using OrderManager.Models.DTOs;
+using OrderManager.Models.DTOs.ClientDto;
 
 namespace OrderManager.Services
 {
-    public interface IClientService
+    public interface IClientService 
     {
-        public Task<ServiceResponse<List<Client>>> GetClients();
-        public Task<ServiceResponse<Client>> GetClient(Guid clientId);
-        public Task<ServiceResponse<Client>> AddClient(ClientDTO newClient);
-        public Task<ServiceResponse<Client>> UpdateClient(ClientDTO updatedClient);
-        public Task<ServiceResponse<Client>> DeleteClient(Guid clientId);
+        public Task<ServiceResponse<List<ClientDTO>>> GetAllAsync();
+        public Task<ServiceResponse<ClientDetailsDto>> GetByIdAsync(Guid clientId);
+        public Task<ServiceResponse<ClientDTO>> CreateAsync(ClientCreateDto newClient);
+        public Task<ServiceResponse<ClientDTO>> UpdateAsync(Guid clientId, ClientUpdateDto updatedClient);
+        public Task<ServiceResponse<bool>> DeleteAsync(Guid clientId);
     }
 }

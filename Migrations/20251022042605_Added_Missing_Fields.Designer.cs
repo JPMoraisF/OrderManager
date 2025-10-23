@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderManager.Data;
 
@@ -10,9 +11,11 @@ using OrderManager.Data;
 namespace OrderManager.Migrations
 {
     [DbContext(typeof(OrderManagerContext))]
-    partial class OrderManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20251022042605_Added_Missing_Fields")]
+    partial class Added_Missing_Fields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.20");
