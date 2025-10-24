@@ -1,63 +1,66 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderManager.Data;
 using OrderManager.Models;
-using System.Reflection.Metadata.Ecma335;
 
 namespace OrderManager.Repository
 {
-    public class ClientRepository : IClientRepository
+    public class ClientRepository(OrderManagerContext context) : IClientRepository
     {
-        private readonly OrderManagerContext _context;
-
-        public ClientRepository(OrderManagerContext context)
+        public async Task<Client> AddClient(Client client)
         {
-            _context = context;
-        }
-
-        public async Task<bool> AddClient(Client client)
-        {
-            _context.Clients.Add(client);
-            return await SaveChangesAsync();
+            context.Clients.Add(client);
+            await SaveChangesAsync();
+            return client;
         }
 
         public async Task<bool> DeleteClient(Client clientToDelete)
         {
-            _context.Clients.Remove(clientToDelete);
+            context.Clients.Remove(clientToDelete);
             return await SaveChangesAsync();
+        }
+
+        public Task<bool> EmailExists(string email)
+        {
+            return context.Clients.AnyAsync(c => c.Email == email);
         }
 
         public Task<List<Client>> FindAll()
         {
-            return _context.Clients.ToListAsync();
+            return context.Clients
+                .Include(w => w.WorkOrders)
+                .ToListAsync();
         }
 
         public Task<Client?> FindByEmail(string email)
         {
-            var client = _context.Clients.FirstOrDefaultAsync(c => c.Email == email);
+            var client = context.Clients.FirstOrDefaultAsync(c => c.Email == email);
             return client;
         }
 
         public async Task<Client?> FindById(Guid id)
         {
-            var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == id);
+            var client = await context.Clients
+                .Include(wo => wo.WorkOrders)
+                .FirstOrDefaultAsync(c => c.Id == id);
             return client;
         }
 
         public async Task<List<Client>> FindByName(string name)
         {
-            var clients = await _context.Clients.Where(c => c.Name.Contains(name)).ToListAsync();
+            var clients = await context.Clients.Where(c => c.Name.Contains(name)).ToListAsync();
             return clients;
         }
 
         public async Task<bool> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync() > 0;
+            return await context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> UpdateClient(Client client)
+        public async Task<Client> UpdateClient(Client client)
         {
-            _context.Clients.Update(client);
-            return await SaveChangesAsync();
+            context.Clients.Update(client);
+            await SaveChangesAsync();
+            return client;
         }
     }
 }
