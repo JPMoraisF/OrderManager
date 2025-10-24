@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace OrderManager.Tests
 {
+    [ExcludeFromCodeCoverage]
     public class UnitTest1
     {
         [Fact]
