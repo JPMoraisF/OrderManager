@@ -1,0 +1,74 @@
+name: Setup project for pipeline execution
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x 
+
+      - name: Create standard structure
+        run: |
+          mkdir -p src tests .github/workflows
+
+          if [ -f "OrderManager.csproj" ]; then
+            mkdir -p src/OrderManager
+            mv * src/OrderManager/ 2>/dev/null || true
+          fi
+
+          if [ -d "../OrderManager.Tests" ]; then
+            mkdir -p tests/OrderManager.Tests
+            mv ../OrderManager.Tests/* tests/OrderManager.Tests/ 2>/dev/null || true
+          fi
+
+          echo "Directory structure created."
+
+      - name: Update .sln
+        run: |
+          dotnet sln remove $(dotnet sln list | grep .csproj || true)
+          dotnet sln add src/OrderManager/OrderManager.csproj
+          dotnet sln add tests/OrderManager.Tests/OrderManager.Tests.csproj
+          echo "Solution updated."
+
+      - name: Create CI pipeline
+        run: |
+          cat <<'EOF' > .github/workflows/ci.yml
+          name: Run Tests on Pull Request
+
+          on:
+            pull_request:
+              branches:
+                - main
+
+          jobs:
+            build-and-test:
+              runs-on: ubuntu-latest
+
+              steps:
+                - name: Checkout code
+                  uses: actions/checkout@v4
+
+                - name: Setup .NET
+                  uses: actions/setup-dotnet@v4
+                  with:
+                    dotnet-version: 8.0.x
+
+                - name: Restore dependencies
+                  run: dotnet restore OrderManager.sln
+
+                - name: Build
+                  run: dotnet build OrderManager.sln --no-restore --configuration Release
+
+                - name: Run tests
+                  run: dotnet test OrderManager.sln --no-build --verbosity normal
+          EOF
+          echo "CI created"
