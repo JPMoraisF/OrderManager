@@ -12,7 +12,7 @@ namespace OrderManager.Tests
         }
 
         [Fact]
-        public void Test2()
+        public void Test_Fail()
         {
             Assert.True(false);
         }
