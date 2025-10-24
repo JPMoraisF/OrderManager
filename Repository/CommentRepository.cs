@@ -5,9 +5,14 @@ namespace OrderManager.Repository
 {
     public class CommentRepository(OrderManagerContext context) : ICommentRepository
     {
+        /// <summary>
+        /// Adds a new comment to the database.
+        /// </summary>
+        /// <param name="newComment">The comment object to be saved</param>
+        /// <returns>The comment object created in the database</returns>
         public async Task<Comment> AddComment(Comment newComment)
         {
-            context.Comments.AddAsync(newComment);
+            await context.Comments.AddAsync(newComment);
             await SaveChangesAsync();
             return newComment;
         }
