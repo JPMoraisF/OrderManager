@@ -1,0 +1,30 @@
+name: Run Tests on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x  
+
+      - name: Restore dependencies
+        run: dotnet restore OrderManager.sln
+
+      - name: Build
+        run: dotnet build OrderManager.sln --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test OrderManager.sln --no-build --verbosity normal
