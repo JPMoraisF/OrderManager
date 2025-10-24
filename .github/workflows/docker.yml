@@ -21,8 +21,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t jpmorais/${{ github.repository }}:latest .
+          docker build -t jpmorais/${{ secrets.PROJECT_NAME }}:latest .
 
       - name: Push Docker image
         run: |
-          docker push jpmorais/${{ github.repository }}:latest
+          docker push jpmorais/${{ secrets.PROJECT_NAME }}:latest
