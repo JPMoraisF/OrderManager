@@ -27,6 +27,11 @@ namespace OrderManager.Controllers
             return BadRequest(response);
         }
 
+        /// <summary>
+        /// Get comments associated with a given work order id
+        /// </summary>
+        /// <param name="workOrderId">The work order id</param>
+        /// <returns>A list of comments for a given work order id</returns>
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<CommentDTO>>>> GetCommentsByWorkOrderId(Guid workOrderId)
         {
