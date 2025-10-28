@@ -67,7 +67,7 @@ namespace OrderManager.Services
         {
             var orders = await workOrderRepository.GetAllWorkOrders();
             var orderDto = orders.Adapt<List<WorkOrderDTO>>();
-            return ResponseBuilderHelper.Success<List<WorkOrderDTO>>(orderDto, "Work orders retrieved successfully.");
+            return ResponseBuilderHelper.Success<List<WorkOrderDTO>>(orderDto, "Work orders retrieved.");
         }
 
         public async Task<ServiceResponse<bool>> MarkWorkOrderAsCompleted(Guid workOrderId)
