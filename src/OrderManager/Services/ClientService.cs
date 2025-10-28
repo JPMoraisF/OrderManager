@@ -10,6 +10,12 @@ namespace OrderManager.Services
     public class ClientService(IClientRepository clientRepository) : IClientService
         
     {
+
+        /// <summary>
+        /// Creates a new client based on the provided ClientCreateDto.
+        /// </summary>
+        /// <param name="newClient">The client create DTO</param>
+        /// <returns>A new client DTO object with the created information</returns>
         public async Task<ServiceResponse<ClientDTO>> CreateAsync(ClientCreateDto newClient)
         {
             try

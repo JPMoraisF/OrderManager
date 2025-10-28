@@ -35,7 +35,7 @@
         /// <summary>
         /// Work order list for the client
         /// </summary>
-        public List<WorkOrder> WorkOrders { get; set; } = [];
+        public List<WorkOrder>? WorkOrders { get; set; } = [];
 
         /// <summary>
         /// Create the client entity to be saved on the database.
