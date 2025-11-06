@@ -6,7 +6,7 @@
         public string Description { get; set; }
         public decimal Price { get; set; }
         public WorkOrderStatusEnum Status { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime? CompletedDate { get; set; }
         public string ClientEmail { get; set; }
 

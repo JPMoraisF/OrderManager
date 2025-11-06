@@ -23,7 +23,16 @@ namespace OrderManager.Services
                    clientServiceResponse.Data.Id
                 );
                 var createdOrder = await workOrderRepository.CreateWorkOrder(workOrder);
-                var orderDto = createdOrder.Adapt<WorkOrderDTO>();
+                var orderDto = new WorkOrderDTO
+                {
+                    Id = workOrder.Id,
+                    Description = workOrder.Description,
+                    Price = workOrder.Price,
+                    ClientEmail = clientServiceResponse.Data.Email,
+                    CreatedAt = workOrder.CreatedAt,
+                    Status = workOrder.Status,
+                    Comments = []
+                };
                 return ResponseBuilderHelper.Success<WorkOrderDTO>(orderDto, "Work order created successfully.");
             }
             catch (ArgumentException ex)
@@ -45,7 +54,15 @@ namespace OrderManager.Services
             }
             else
             {
-                var orderDto = order.Adapt<WorkOrderDTO>();
+                var orderDto = new WorkOrderDTO
+                {
+                    Id = order.Id,
+                    Description = order.Description,
+                    Price = order.Price,
+                    ClientEmail = order.Client.Email,
+                    CreatedAt = order.CreatedAt,
+                    Status = order.Status,
+                };
                 return ResponseBuilderHelper.Success<WorkOrderDTO>(orderDto, "Work orders retrieved successfully.");
             }
         }

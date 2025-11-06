@@ -5,7 +5,7 @@ using OrderManager.Services;
 
 namespace OrderManager.Controllers
 {
-    [Route("api/workorders/{workOrderId}[controller]")]
+    [Route("api/workorders/{workOrderId}/comments")]
     [ApiController]
     public class CommentController(ICommentService commentService) : ControllerBase
     {

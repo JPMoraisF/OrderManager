@@ -19,8 +19,29 @@ namespace OrderManager.Tests.Services
         {
             _clientsInMemory = new List<Client>
             {
-                new Client { Id = Guid.NewGuid(), Name = "Alice", Email = "alice@test.com", Phone = "123" },
-                new Client { Id = Guid.NewGuid(), Name = "Bob", Email = "bob@test.com", Phone = "456" }
+                new Client
+                {
+                    Id = Guid.NewGuid(), 
+                    Name = "Alice", 
+                    Email = "alice@test.com", 
+                    Phone = "123", 
+                    WorkOrders = new List<WorkOrder>
+                    {
+                        new WorkOrder
+                        {
+                            Id = Guid.NewGuid(),
+                            ClientId = Guid.NewGuid(),
+                        }
+                    }
+                },
+                new Client { Id = Guid.NewGuid(), Name = "Bob", Email = "bob@test.com", Phone = "456", WorkOrders = new List<WorkOrder>
+                {
+                    new WorkOrder
+                    {
+                        Id = Guid.NewGuid(),
+                        ClientId = Guid.NewGuid(),
+                    }
+                }}
             };
             _mockRepo = new Mock<IClientRepository>();
             _service = new ClientService(_mockRepo.Object);
@@ -206,9 +227,11 @@ namespace OrderManager.Tests.Services
 
             // Arrange
             var existingClient = _clientsInMemory[0];
+            var changedClient = existingClient;
+            changedClient.Name = clientUpdateDto.Name;
 
             _mockRepo.Setup(r => r.UpdateClient(existingClient))
-                .ReturnsAsync(new Client());
+                .ReturnsAsync(changedClient);
 
             // Act
             var result = await _service.UpdateAsync(existingClient.Id, clientUpdateDto);

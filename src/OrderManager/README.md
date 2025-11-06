@@ -28,21 +28,25 @@ To run the project locally, follow these steps:
 1. Clone the repository:
    ```bash
    git clone
-
    ```
-   2. Navigate to the project directory:
-   ```bash
+2. Navigate to the project directory:
+   ```bash 
    cd OrderManagementAPI
    ```
 
-   3. Restore the dependencies:
+3. Restore the dependencies:
    ```bash
    dotnet restore
    ```
 
-   4. Run the application:
+4. Run the application:
    ```bash
    dotnet run
    ```
-   5. Open your browser and navigate to `http://localhost:5000/swagger` to access the Swagger UI for testing the API endpoints.
+5. Open your browser and navigate to `http://localhost:5000/swagger` to access the Swagger UI for testing the API endpoints.
 
+You can also pull the Docker image from Docker Hub and run it using Docker:
+```bash
+docker pull jpmorais/order-managementapi:latest
+docker run -d -p 5000:5000 jpmorais/order-managementapi:latest
+```

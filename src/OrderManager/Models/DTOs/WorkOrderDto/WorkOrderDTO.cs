@@ -27,7 +27,7 @@ namespace OrderManager.Models.DTOs.WorkOrderDto
         /// <summary>
         /// Work order created date
         /// </summary>
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         /// <summary>
         /// The client email

@@ -86,7 +86,15 @@ namespace OrderManager.Services
         public async Task<ServiceResponse<List<ClientDTO>>> GetAllAsync()
         {
             var allClients = await clientRepository.FindAll();
-            var allClientsDto = allClients.Adapt<List<ClientDTO>>();
+            var allClientsDto = allClients.Select(c => new ClientDTO
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Email = c.Email,
+                Phone = c.Phone,
+                WorkOrders = c.WorkOrders?.Select(w => w.Id).ToList() ?? new List<Guid>()
+            }).ToList();
+           
             return ResponseBuilderHelper.Success<List<ClientDTO>>(allClientsDto, "Clients retrieved successfully.");
         }
 
@@ -105,7 +113,14 @@ namespace OrderManager.Services
             );
                 var updateResult = await clientRepository.UpdateClient(existingClient);
                 // missing check here
-                var existingClientDto = existingClient.Adapt<ClientDTO>();
+                var existingClientDto = new ClientDTO
+                {
+                    Id = updateResult.Id,
+                    Name = updateResult.Name,
+                    Email = updateResult.Email,
+                    Phone = updateResult.Phone,
+                    WorkOrders = updateResult.WorkOrders?.Select(w => w.Id).ToList() ?? new List<Guid>()
+                };
                 return ResponseBuilderHelper.Success<ClientDTO>(existingClientDto, "Client updated successfully.");
             }
             catch (ArgumentNullException argEx)

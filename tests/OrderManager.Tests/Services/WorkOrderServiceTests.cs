@@ -111,35 +111,38 @@ namespace OrderManager.Tests.Services
                     Success = true,
                     Message = "Clients returned."
                 });
-            _mockRepo.Setup(r => r.CreateWorkOrder(It.IsAny<WorkOrder>()))
-                .ReturnsAsync(new WorkOrder
-                { 
-                    CompletedDate = DateTime.Now,
-                    CreatedAt = DateTime.Now,
-                    Comments = null,
-                    Description = "test",
-                    Price = 10,
-                    Status  = WorkOrderStatusEnum.OPEN,
-                    UpdatedAt = DateTime.Now,
-                    Client = new Client { Id = Guid.NewGuid(), Name = "Alice", Email = "alice@test.com", Phone = "123" }
-                });
-
-
-            var newWorkOrder = new WorkOrderCreateDto
+            
+            var newWorkOrderDto = new WorkOrderCreateDto
             {
                 Description = "Test Work Order",
                 Price = 100.0m,
                 ClientId = existingClient.Id
             };
+
+            var newWorkOrder = new WorkOrder
+            {
+                CompletedDate = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                Comments = null,
+                Description = "Test Work Order",
+                Price = 100,
+                Status = WorkOrderStatusEnum.OPEN,
+                UpdatedAt = DateTime.Now,
+                Client = new Client { Id = existingClient.Id, Name = "Alice", Email = "alice@test.com", Phone = "123" },
+                Id = Guid.NewGuid()
+            };
+            
+            _mockRepo.Setup(r => r.CreateWorkOrder(It.IsAny<WorkOrder>()))
+                .ReturnsAsync(newWorkOrder);
+
             // Act
-            var result = await _service.CreateWorkOrder(newWorkOrder);
+            var result = await _service.CreateWorkOrder(newWorkOrderDto);
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
             Assert.Equal(newWorkOrder.Description, result.Data.Description);
             Assert.Equal(newWorkOrder.Price, result.Data.Price);
-            Assert.Equal(existingClient.Id, result.Data.Id);
         }
 
         [Fact]
@@ -217,7 +220,7 @@ namespace OrderManager.Tests.Services
         }
 
         [Fact]
-        public async Task ShouldGetWorkOrders_WhenOrdersExists_ShouldReturlList()
+        public async Task ShouldGetWorkOrders_WhenOrdersExists_ShouldReturnList()
         {
             // Arrange
             var workOrders = new List<WorkOrder>
