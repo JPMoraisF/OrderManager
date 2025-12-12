@@ -15,23 +15,33 @@ namespace OrderManager.Services
                 return ResponseBuilderHelper.Failure<WorkOrderDTO>("Client not found. Cannot create work order.");
             }
             var workOrder = new WorkOrder();
-            // This can throw an exception if validation fails
-            workOrder.Create(
-                newWorkOrder.Description,
-                newWorkOrder.Price,
-                clientServiceResponse.Data.Id
-            );
-
-            var createdOrder = await workOrderRepository.CreateWorkOrder(workOrder);
-            // This doesn't return the created work order
-            if(createdOrder == null)
+            try
+            {
+                workOrder.Create(
+                   newWorkOrder.Description,
+                   newWorkOrder.Price,
+                   clientServiceResponse.Data.Id
+                );
+                var createdOrder = await workOrderRepository.CreateWorkOrder(workOrder);
+                var orderDto = new WorkOrderDTO
+                {
+                    Id = workOrder.Id,
+                    Description = workOrder.Description,
+                    Price = workOrder.Price,
+                    ClientEmail = clientServiceResponse.Data.Email,
+                    CreatedAt = workOrder.CreatedAt,
+                    Status = workOrder.Status,
+                    Comments = []
+                };
+                return ResponseBuilderHelper.Success<WorkOrderDTO>(orderDto, "Work order created successfully.");
+            }
+            catch (ArgumentException ex)
+            {
+                return ResponseBuilderHelper.Failure<WorkOrderDTO>(ex.Message);
+            }
+            catch (Exception ex)
             {
                 return ResponseBuilderHelper.Failure<WorkOrderDTO>("Error creating work order. Please try again.");
-            }
-            else
-            {
-                var orderDto = createdOrder.Adapt<WorkOrderDTO>();
-                return ResponseBuilderHelper.Success<WorkOrderDTO>(orderDto, "Work order created successfully.");
             }
         }
 
@@ -44,7 +54,15 @@ namespace OrderManager.Services
             }
             else
             {
-                var orderDto = order.Adapt<WorkOrderDTO>();
+                var orderDto = new WorkOrderDTO
+                {
+                    Id = order.Id,
+                    Description = order.Description,
+                    Price = order.Price,
+                    ClientEmail = order.Client.Email,
+                    CreatedAt = order.CreatedAt,
+                    Status = order.Status,
+                };
                 return ResponseBuilderHelper.Success<WorkOrderDTO>(orderDto, "Work orders retrieved successfully.");
             }
         }
@@ -77,7 +95,6 @@ namespace OrderManager.Services
             {
                 return ResponseBuilderHelper.Failure<bool>("Work order not found.");
             }
-            // This can throw an exception if the status is not OPEN
             try
             {
                 existingOrder.MarkAsCompleted();
@@ -88,12 +105,16 @@ namespace OrderManager.Services
                 }
                 else
                 {
-                    return ResponseBuilderHelper.Success<bool>(true, "Work order marked as completed successfully.");  
+                    return ResponseBuilderHelper.Success<bool>(true, "Work order marked as completed successfully.");
                 }
             }
             catch (InvalidOperationException ex)
             {
                 return ResponseBuilderHelper.Failure<bool>(ex.Message);
+            }
+            catch (Exception)
+            {
+                return ResponseBuilderHelper.Failure<bool>("Error marking work order as completed. Please try again.");
             }
         }
     }

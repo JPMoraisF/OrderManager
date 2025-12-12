@@ -37,6 +37,6 @@ namespace OrderManager.Models.DTOs.ClientDto
         /// <summary>
         /// A list of work orders associated with the client
         /// </summary>
-        public List<WorkOrderDetailsDto> WorkOrders { get; set; } = [];
+        public List<WorkOrderDetailsDto>? WorkOrders { get; set; } = [];
     }
 }

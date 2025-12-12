@@ -6,7 +6,7 @@ namespace OrderManager.Repository
 {
     public class WorkOrderRepository(OrderManagerContext context) : IWorkOrderRepository
     {
-        public async Task<WorkOrder> CreateWorkOrder(WorkOrder newWorkOrder)
+        public async Task<WorkOrder?> CreateWorkOrder(WorkOrder newWorkOrder)
         {
             context.WorkOrders.Add(newWorkOrder);
             await SaveChangesAsync();
