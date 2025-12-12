@@ -69,7 +69,7 @@ namespace OrderManager.Tests.Services
             Assert.True(result.Success);
             Assert.NotNull(result.Data);
             Assert.NotEmpty(result.Data);
-            Assert.Equal(2, result.Data.Count);
+            Assert.Equal(3, result.Data.Count);
         }
 
         [Fact]
