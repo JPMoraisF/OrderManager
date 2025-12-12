@@ -41,7 +41,8 @@ namespace OrderManager.Tests.Services
                         Id = Guid.NewGuid(),
                         ClientId = Guid.NewGuid(),
                     }
-                }}
+                }},
+                new Client { Id = Guid.NewGuid(), Name = "Charlie", Email = "test@email.com", Phone = "789" }
             };
             _mockRepo = new Mock<IClientRepository>();
             _service = new ClientService(_mockRepo.Object);
@@ -162,11 +163,11 @@ namespace OrderManager.Tests.Services
         public async Task ShouldDeleteClient_WhenClientExists_ShouldReturnDeletedClient()
         {
             // Arrange
-            _mockRepo.Setup(r => r.DeleteClient(_clientsInMemory[0]))
+            _mockRepo.Setup(r => r.DeleteClient(_clientsInMemory[2]))
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _service.DeleteAsync(_clientsInMemory[0].Id);
+            var result = await _service.DeleteAsync(_clientsInMemory[2].Id);
 
             // Assert
             Assert.True(result.Success);

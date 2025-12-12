@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moq;
+using OrderManager.Mapper;
 using OrderManager.Models;
 using OrderManager.Models.DTOs.ClientDto;
 using OrderManager.Models.DTOs.WorkOrderDto;
@@ -27,6 +28,7 @@ namespace OrderManager.Tests.Services
                 new WorkOrder { Id = Guid.NewGuid(), Description = "Fix screen", Price = 150.0m, Client = new Client { Id = Guid.NewGuid(), Name = "Alice", Email = "alice@email.com"}, },
                 new WorkOrder { Id = Guid.NewGuid(), Description = "Replaced battery", Price = 200.0m, Client = new Client { Id = Guid.NewGuid(), Name = "Bob", Email = "bob@email.com" } },
             };
+            MapsterConfig.RegisterMappings();
         }
 
         [Fact]
