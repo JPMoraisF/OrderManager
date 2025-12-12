@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 COPY *.sln .
-COPY src/*.csproj ./src/OrderManager/
+COPY src/*.csproj ./src/
 COPY tests/OrderManager.Tests/*.csproj ./tests/OrderManager.Tests/
 
 RUN dotnet restore
