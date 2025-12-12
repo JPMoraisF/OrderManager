@@ -5,13 +5,13 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 COPY *.sln .
-COPY src/OrderManager/*.csproj ./src/OrderManager/
+COPY src/*.csproj ./src/OrderManager/
 COPY tests/OrderManager.Tests/*.csproj ./tests/OrderManager.Tests/
 
 RUN dotnet restore
 
 COPY . .
-RUN dotnet publish src/OrderManager/OrderManager.csproj -c Release -o /app/publish
+RUN dotnet publish src/OrderManager.csproj -c Release -o /app/publish
 
 # ------------------------
 # Step 2: Runtime

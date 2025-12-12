@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OrderManager\OrderManager.csproj" />
+    <ProjectReference Include="..\..\src\OrderManager.csproj" />
   </ItemGroup>
 
   <ItemGroup>

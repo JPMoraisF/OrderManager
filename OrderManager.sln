@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManager", "src\OrderManager\OrderManager.csproj", "{8360224E-6F02-4670-BA26-989E5AAA0694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManager", "src\OrderManager.csproj", "{8360224E-6F02-4670-BA26-989E5AAA0694}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManager.Tests", "tests\OrderManager.Tests\OrderManager.Tests.csproj", "{3D5E7AA6-3E4C-4366-8037-A7C61AC4B8CF}"
 EndProject
