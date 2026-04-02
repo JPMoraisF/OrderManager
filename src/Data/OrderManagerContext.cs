@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OrderManager.Data.Configuration;
 using OrderManager.Models;
 
 namespace OrderManager.Data
@@ -12,15 +13,8 @@ namespace OrderManager.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Client>().HasKey(c => c.Id);
             base.OnModelCreating(builder);
-
-            builder.Entity<Client>()
-                .HasMany(c => c.WorkOrders)
-                .WithOne(w => w.Client)
-                .HasForeignKey(w => w.ClientId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            builder.ApplyConfigurationsFromAssembly(typeof(ClientConfiguration).Assembly);
             builder.Entity<WorkOrder>()
                 .HasMany(w => w.Comments)
                 .WithOne(c => c.WorkOrder)

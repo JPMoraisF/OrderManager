@@ -30,6 +30,17 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddDbContext<OrderManagerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnectionString")));
 
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy => policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 // Swagger documentation
 builder.Services.AddSwaggerGen(c =>
 {
@@ -50,6 +61,8 @@ using (var scope = app.Services.CreateScope())
 // Using Swagger in Prod for educational purposes only. This is not correct
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("AllowAngular");
 
 //app.UseHttpsRedirection();
 

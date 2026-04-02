@@ -1,4 +1,6 @@
-﻿namespace OrderManager.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace OrderManager.Models
 {
     public class Client
     {
@@ -10,6 +12,7 @@
         /// <summary>
         /// The client name
         /// </summary>
+        [MaxLength(20)]
         public string Name { get; set; }
 
         /// <summary>
